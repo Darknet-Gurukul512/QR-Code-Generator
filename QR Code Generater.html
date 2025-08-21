@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Online QR Code Generator</title>
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+    }
+    .container {
+        background: #222;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 400px;
+        margin: auto;
+    }
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 5px;
+    }
+    button {
+        background: #0f0;
+        font-weight: bold;
+        cursor: pointer;
+        color: #000;
+    }
+    img {
+        margin-top: 15px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Online QR Code Generator</h2>
+    <label>Select QR Type:</label>
+    <select id="type" onchange="updateFields()">
+        <option value="url">URL</option>
+        <option value="wifi">WiFi Network</option>
+        <option value="text">Custom Text</option>
+    </select>
+
+    <div id="fields">
+        <input type="text" id="url" placeholder="Enter URL">
+    </div>
+
+    <button onclick="generateQR()">Generate QR</button>
+    <div id="qr-result"></div>
+</div>
+
+<script>
+function updateFields() {
+    let type = document.getElementById("type").value;
+    let fields = document.getElementById("fields");
+    fields.innerHTML = "";
+    if (type === "url") {
+        fields.innerHTML = `<input type="text" id="url" placeholder="Enter URL">`;
+    } else if (type === "wifi") {
+        fields.innerHTML = `
+            <input type="text" id="ssid" placeholder="WiFi SSID">
+            <input type="text" id="pass" placeholder="WiFi Password">
+            <input type="text" id="enc" placeholder="Encryption (WPA/WEP/NONE)" value="WPA">
+        `;
+    } else if (type === "text") {
+        fields.innerHTML = `<input type="text" id="custom" placeholder="Enter text">`;
+    }
+}
+
+function generateQR() {
+    let type = document.getElementById("type").value;
+    let text = "";
+
+    if (type === "url") {
+        text = document.getElementById("url").value.trim();
+    } else if (type === "wifi") {
+        let ssid = document.getElementById("ssid").value.trim();
+        let pass = document.getElementById("pass").value.trim();
+        let enc = document.getElementById("enc").value.trim();
+        text = `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+    } else if (type === "text") {
+        text = document.getElementById("custom").value.trim();
+    }
+
+    if (!text) return alert("Please enter data!");
+
+    let apiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(text)}&size=200x200`;
+    document.getElementById("qr-result").innerHTML = `<img src="${apiUrl}" alt="QR Code"><br><a href="${apiUrl}" download="qrcode.png"><button>Download QR</button></a>`;
+}
+</script>
+
+</body>
+</html>
